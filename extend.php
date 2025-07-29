@@ -17,11 +17,11 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less'),
-        
+        ->js(__DIR__ . '/js/dist/forum.js')
+        ->css(__DIR__ . '/less/forum.less'),
+
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js'),
+        ->js(__DIR__ . '/js/dist/admin.js'),
     new Extend\Locales(__DIR__ . '/resources/locale'),
 
     (new Extend\ApiSerializer(ForumSerializer::class))
@@ -31,6 +31,11 @@ return [
         })
         ->attribute('therealsujitk-gifs.api_key', function ($serializer, $model) {
             $settings = resolve(SettingsRepositoryInterface::class);
+            // don't expose API key to guest users (they can't post)
+            $actor = $serializer->getActor();
+            if ($actor->isGuest()) {
+                return null;
+            }
             return $settings->get('therealsujitk-gifs.api_key', null);
         })
         ->attribute('therealsujitk-gifs.rating', function ($serializer, $model) {
